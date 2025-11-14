@@ -386,6 +386,16 @@ const PageManager = (() => {
                     <h1 style="margin-bottom: 2rem;">Admin Panel</h1>
 
                     <div class="admin-section">
+                        <h3>⚙️ Settings</h3>
+                        <div style="margin-bottom:1rem; display:flex; gap:0.5rem; align-items:center;">
+                            <input id="adminWhatsAppInput" type="text" placeholder="Admin WhatsApp number" style="flex:1; padding:0.5rem; border-radius:4px; border:1px solid var(--border-color);" value="${StorageManager.getAdminWhatsAppNumber() || ''}">
+                            <button class="btn-checkout" style="padding:0.5rem 0.75rem;" onclick="AppState.saveAdminWhatsAppNumber()">Save</button>
+                        </div>
+                        <div style="color:#777; font-size:0.9rem; margin-bottom:0.5rem;">Enter number in local (091...) or international (234...) format; app normalizes for wa.me links.</div>
+                        ${StorageManager.getAdminWhatsAppNumber() ? `<div style="color:#333; font-size:0.95rem; margin-bottom:1.5rem;">Saved (normalized): <strong>+${StorageManager.getAdminWhatsAppNumber()}</strong></div>` : ''}
+                    </div>
+
+                    <div class="admin-section">
                         <h3>📦 Manage Items</h3>
                         <div class="admin-grid">
                             ${itemsHtml}

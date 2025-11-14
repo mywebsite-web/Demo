@@ -7,6 +7,7 @@ const StorageManager = (() => {
     const CART_KEY = 'foodhub_cart';
     const ORDERS_KEY = 'foodhub_orders';
     const UNAVAILABLE_ITEMS_KEY = 'foodhub_unavailable';
+    const ADMIN_WHATSAPP_KEY = 'foodhub_admin_whatsapp';
 
     return {
         // Cart operations
@@ -70,6 +71,29 @@ const StorageManager = (() => {
                 }
             } catch (e) {
                 console.error('Error deleting order:', e);
+            }
+        },
+
+        // Admin WhatsApp number (stored as plain string)
+        getAdminWhatsAppNumber() {
+            try {
+                const v = localStorage.getItem(ADMIN_WHATSAPP_KEY);
+                return v ? v : null;
+            } catch (e) {
+                console.error('Error getting admin whatsapp number:', e);
+                return null;
+            }
+        },
+
+        setAdminWhatsAppNumber(number) {
+            try {
+                if (number === null || number === undefined) {
+                    localStorage.removeItem(ADMIN_WHATSAPP_KEY);
+                } else {
+                    localStorage.setItem(ADMIN_WHATSAPP_KEY, String(number));
+                }
+            } catch (e) {
+                console.error('Error setting admin whatsapp number:', e);
             }
         },
 

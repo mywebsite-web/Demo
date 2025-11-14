@@ -16,6 +16,19 @@ const AppState = (() => {
         CartManager.init();
         updateCartCount();
         setupEventListeners();
+        // Ensure there's a saved normalized admin number. If none exists, normalize the default and save it.
+        try {
+            const saved = StorageManager.getAdminWhatsAppNumber();
+            if (!saved) {
+                const normalizedDefault = normalizePhoneForWa(ADMIN_WHATSAPP_NUMBER);
+                if (normalizedDefault && /^\d+$/.test(normalizedDefault)) {
+                    StorageManager.setAdminWhatsAppNumber(normalizedDefault);
+                }
+            }
+        } catch (e) {
+            console.warn('Could not persist default admin WhatsApp number:', e);
+        }
+
         navigateTo('home');
     }
 
@@ -72,10 +85,9 @@ const AppState = (() => {
         }
     }
 
-    // Admin WhatsApp number in international format (no + or spaces).
-    // You provided a local number '09157286254' — converted to Nigeria international format by removing the leading 0 and prefixing 234.
-    // wa.me requires country code format (e.g., 2349157286254)
-    const ADMIN_WHATSAPP_NUMBER = '2349074350932';
+    // Admin WhatsApp number (raw/default). You provided a local number below; app will normalize it for wa.me links.
+    // Leave as local (0-prefixed) or international. We'll normalize and persist a canonical version on first run.
+    const ADMIN_WHATSAPP_NUMBER = '09074350932';
 
     // Normalize phone number for wa.me links.
     // - removes non-digits and leading +
@@ -104,6 +116,12 @@ const AppState = (() => {
         }
 
         return s;
+    }
+
+    // Return effective admin number (either saved in storage or default constant)
+    function getEffectiveAdminNumber() {
+        const saved = StorageManager.getAdminWhatsAppNumber();
+        return (saved && String(saved).trim().length > 0) ? saved : ADMIN_WHATSAPP_NUMBER;
     }
 
     // Helper: generate a random order ID
@@ -339,7 +357,7 @@ const AppState = (() => {
 
             // Build wa.me link for admin (opens admin chat directly)
             let waLink = '';
-            const normalizedAdmin = normalizePhoneForWa(ADMIN_WHATSAPP_NUMBER);
+            const normalizedAdmin = normalizePhoneForWa(getEffectiveAdminNumber());
             if (normalizedAdmin && /^\d+$/.test(normalizedAdmin)) {
                 waLink = `https://wa.me/${normalizedAdmin}?text=${encodeURIComponent(whatsappMessage)}`;
             } else {
@@ -369,15 +387,18 @@ const AppState = (() => {
                         <p><strong>Estimated Time:</strong> 30-45 minutes</p>
                         <p><strong>Total Amount:</strong> <strong style="color: var(--primary-color);">${UIManager.formatPrice(order.total)}</strong></p>
                     </div>
-                    <p style="font-size: 0.875rem; color: #999; margin-bottom: 1.5rem;">
+                    <p id="waStatus" style="font-size: 0.875rem; color: #999; margin-bottom: 1.5rem;">
                         ✅ Your order has been sent to the restaurant on WhatsApp.
                     </p>
-                    <button class="btn-checkout" style="background-color: var(--success-color); margin-right: 1rem; margin-bottom: 1rem;" onclick="AppState.navigateTo('home')">
-                        Back to Home
-                    </button>
-                    <button class="btn-checkout" style="background-color: var(--primary-color);" onclick="AppState.navigateTo('admin')">
-                        View Orders
-                    </button>
+                    <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+                        <a id="waFallbackLink" href="${waLink}" target="_blank" class="btn-checkout" style="background-color:#25d366; color:white; text-decoration:none; display:inline-block; margin-right: 0; margin-bottom: 0;">Open WhatsApp (if it didn't open)</a>
+                        <button class="btn-checkout" style="background-color: var(--success-color); margin-right: 1rem; margin-bottom: 1rem;" onclick="AppState.navigateTo('home')">
+                            Back to Home
+                        </button>
+                        <button class="btn-checkout" style="background-color: var(--primary-color);" onclick="AppState.navigateTo('admin')">
+                            View Orders
+                        </button>
+                    </div>
                 </div>
             `;
             window.scrollTo(0, 0);
@@ -410,6 +431,30 @@ const AppState = (() => {
             StorageManager.deleteOrder(orderId);
             navigateTo('admin');
             UIManager.notify('🗑️ Order deleted', 'success');
+        },
+
+        // Save admin WhatsApp number from Admin settings UI
+        saveAdminWhatsAppNumber() {
+            const input = document.getElementById('adminWhatsAppInput');
+            if (!input) return;
+            const raw = input.value.trim();
+            if (raw.length === 0) {
+                StorageManager.setAdminWhatsAppNumber(null);
+                UIManager.notify('✅ Admin WhatsApp number cleared', 'success');
+                navigateTo('admin');
+                return;
+            }
+
+            // Normalize before saving so admin UI shows canonical number
+            const normalized = normalizePhoneForWa(raw);
+            if (!normalized || !/^[0-9]+$/.test(normalized)) {
+                UIManager.notify('❌ Invalid phone number. Please enter a valid local or international number.', 'error');
+                return;
+            }
+
+            StorageManager.setAdminWhatsAppNumber(normalized);
+            UIManager.notify(`✅ Admin WhatsApp number saved (${normalized})`, 'success');
+            navigateTo('admin');
         },
 
         /**
