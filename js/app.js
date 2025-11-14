@@ -75,7 +75,7 @@ const AppState = (() => {
     // Admin WhatsApp number in international format (no + or spaces).
     // You provided a local number '09157286254' — converted to Nigeria international format by removing the leading 0 and prefixing 234.
     // wa.me requires country code format (e.g., 2349157286254)
-    const ADMIN_WHATSAPP_NUMBER = '2349157286254';
+    const ADMIN_WHATSAPP_NUMBER = '2349074350932';
 
     // Normalize phone number for wa.me links.
     // - removes non-digits and leading +
