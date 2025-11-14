@@ -77,6 +77,35 @@ const AppState = (() => {
     // wa.me requires country code format (e.g., 2349157286254)
     const ADMIN_WHATSAPP_NUMBER = '2349157286254';
 
+    // Normalize phone number for wa.me links.
+    // - removes non-digits and leading +
+    // - converts local 0-prefixed Nigerian numbers to international (0XXXXXXXXX -> 234XXXXXXXXX)
+    // - if number seems short, prefixes default country code (234)
+    function normalizePhoneForWa(raw) {
+        if (!raw) return '';
+        let s = String(raw).trim();
+        // remove spaces, parentheses, dashes
+        s = s.replace(/[\s()-]/g, '');
+        // remove any leading +
+        if (s.startsWith('+')) s = s.slice(1);
+        // remove any non-digit characters
+        s = s.replace(/\D/g, '');
+
+        // If it starts with a single 0 (local format), convert to Nigeria country code
+        if (s.length >= 2 && s.startsWith('0')) {
+            // Replace leading 0 with 234 (Nigeria). If you need another country, change this.
+            s = '234' + s.slice(1);
+        }
+
+        // If it already starts with country code (e.g., 234...) leave as-is
+        // If still too short (less than 9 digits), try prefixing 234
+        if (s.length > 0 && s.length < 9) {
+            s = '234' + s;
+        }
+
+        return s;
+    }
+
     // Helper: generate a random order ID
     function generateRandomOrderId() {
         const ts = Date.now();
@@ -310,8 +339,9 @@ const AppState = (() => {
 
             // Build wa.me link for admin (opens admin chat directly)
             let waLink = '';
-            if (ADMIN_WHATSAPP_NUMBER && ADMIN_WHATSAPP_NUMBER.trim() !== '') {
-                waLink = `https://wa.me/09157286254${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+            const normalizedAdmin = normalizePhoneForWa(ADMIN_WHATSAPP_NUMBER);
+            if (normalizedAdmin && /^\d+$/.test(normalizedAdmin)) {
+                waLink = `https://wa.me/${normalizedAdmin}?text=${encodeURIComponent(whatsappMessage)}`;
             } else {
                 // fallback to generic share (user chooses recipient)
                 waLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
