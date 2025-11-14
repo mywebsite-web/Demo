@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FoodHub - Food Ordering App</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+      <div class="navbar-container">
+        <div class="navbar-brand">
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <a href="#" class="logo" data-page="home">🍽️ FoodHub</a>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#" data-page="home" class="nav-link">Home</a></li>
+          <li><a href="#" data-page="menu" class="nav-link">Menu</a></li>
+          <li><a href="#" data-page="login" class="nav-link">Login</a></li>
+          <li><a href="#" data-page="admin" class="nav-link">Admin</a></li>
+          <li>
+            <a href="#" data-page="cart" class="nav-link cart-link">
+              <span class="cart-icon">🛒</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app" class="app-container"></main>
+
+    <!-- Modal for Product Details -->
+    <div class="modal" id="productModal">
+      <div class="modal-content">
+        <button class="modal-close" id="modalClose" aria-label="Close modal">
+          &times;
+        </button>
+        <div class="product-modal-inner" id="productModalContent"></div>
+      </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div
+      class="notification"
+      id="notification"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
