@@ -72,10 +72,10 @@ const AppState = (() => {
         }
     }
 
-    // Admin WhatsApp number (configure to your business number without +)
-    // NOTE: wa.me expects country code format (e.g., 2348001234567). You provided a local number '09157286254'.
-    // We'll store it exactly as you requested. If WhatsApp fails to open for this value, convert to international format.
-    const ADMIN_WHATSAPP_NUMBER = '09157286254';
+    // Admin WhatsApp number in international format (no + or spaces).
+    // You provided a local number '09157286254' — converted to Nigeria international format by removing the leading 0 and prefixing 234.
+    // wa.me requires country code format (e.g., 2349157286254)
+    const ADMIN_WHATSAPP_NUMBER = '2349157286254';
 
     // Helper: generate a random order ID
     function generateRandomOrderId() {
@@ -314,7 +314,7 @@ const AppState = (() => {
                 waLink = `https://wa.me/09157286254${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
             } else {
                 // fallback to generic share (user chooses recipient)
-                waLink = `https://wa.me/09157286254?text=${encodeURIComponent(whatsappMessage)}`;
+                waLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
             }
 
             // Open admin WhatsApp chat in new tab/window
